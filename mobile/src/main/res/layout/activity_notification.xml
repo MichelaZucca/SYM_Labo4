@@ -11,4 +11,29 @@
     tools:context="ch.heigvd.iict.sym.sym_labo4.NotificationActivity">
 
 
+    <Button
+        android:id="@+id/pendingIntent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/intentButtons"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:text="Pending Intent" />
+    <Button
+        android:id="@+id/intentButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="Actions buttons" />
+
+    <Button
+        android:id="@+id/intentWearable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/pendingIntent"
+        android:layout_alignStart="@+id/pendingIntent"
+        android:layout_below="@+id/intentButtons"
+        android:layout_marginTop="49dp"
+        android:text="Wearable-only" />
 </RelativeLayout>

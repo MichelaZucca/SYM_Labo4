@@ -1,10 +1,15 @@
 package ch.heigvd.iict.sym.sym_labo4;
 
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Toast;
 
 import ch.heigvd.iict.sym.wearcommon.Constants;
@@ -20,6 +25,34 @@ public class NotificationActivity extends AppCompatActivity {
             onNewIntent(getIntent());
 
         /* A IMPLEMENTER */
+        findViewById(R.id.pendingIntent).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(NotificationActivity.this);
+                builder.setContentIntent(createPendingIntent(1,"test"));
+                builder.setSmallIcon(android.R.drawable.ic_delete);
+
+                System.out.println("Build Intent");
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.notify(1, builder.build());
+                System.out.println("NotificationManager");
+            }
+        });
+
+        findViewById(R.id.intentButtons).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+
+                //createPendingIntent(001,"Test");
+            }
+        });
+
+        findViewById(R.id.intentWearable).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+
+                //createPendingIntent(001,"Test");
+            }
+        });
+
 
     }
 
@@ -62,5 +95,4 @@ public class NotificationActivity extends AppCompatActivity {
 
         return stackBuilder.getPendingIntent(requestCode, PendingIntent.FLAG_UPDATE_CURRENT);
     }
-
 }
