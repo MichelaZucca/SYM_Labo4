@@ -1,5 +1,6 @@
 package ch.heigvd.iict.sym.sym_labo4;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -28,32 +30,63 @@ public class NotificationActivity extends AppCompatActivity {
         findViewById(R.id.pendingIntent).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(NotificationActivity.this);
-                builder.setContentIntent(createPendingIntent(1,"test"));
-                builder.setSmallIcon(android.R.drawable.ic_delete);
+                builder.setContentIntent(createPendingIntent(1,"Notifications clicked"));
+                builder.setSmallIcon(android.R.drawable.ic_dialog_info);
+                builder.setContentTitle("Nouvelles notifications");
+                builder.setContentText("Cliquez ici !");
 
-                System.out.println("Build Intent");
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 mNotificationManager.notify(1, builder.build());
-                System.out.println("NotificationManager");
             }
         });
 
         findViewById(R.id.intentButtons).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
-                //createPendingIntent(001,"Test");
+                // Intent principal pour afficher la notification
+                Intent intent = new Intent(NotificationActivity.this, NotificationActivity.class);
+                PendingIntent pIntent = PendingIntent.getActivity(NotificationActivity.this, (int) System.currentTimeMillis(), intent, 0);
+
+                // Build et ajouter les boutons de choix
+                Notification n  = new Notification.Builder(NotificationActivity.this)
+                        .setContentTitle("New mail from " + "test@gmail.com")
+                        .setContentText("Subject")
+                        .setPriority(Notification.PRIORITY_MAX)
+                        .setWhen(0)
+                        .setSmallIcon(android.R.drawable.ic_dialog_info)
+                        .setContentIntent(pIntent)
+                        .setAutoCancel(true)
+                        .addAction(android.R.drawable.ic_menu_delete, "delete", createPendingIntent(0,"Email deleted"))
+                        .addAction(android.R.drawable.ic_menu_save, "Save", createPendingIntent(1, "Email saved"))
+                        .addAction(android.R.drawable.ic_menu_more, "Open", createPendingIntent(2, "Email opened"))
+                        .setStyle(new Notification.BigTextStyle().bigText("You have received a mail from "+"test@gmail.com.\nPlease choose an action"))
+                        .build();
+
+
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+                notificationManager.notify(0, n);
+
             }
         });
 
         findViewById(R.id.intentWearable).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
-                //createPendingIntent(001,"Test");
             }
         });
 
 
+    }
+
+    private PendingIntent createPendingIntentNotBuild(int code, String message){
+        Intent intent = new Intent(this, NotificationActivity.class);
+        intent.setAction(Constants.MY_PENDING_INTENT_ACTION);
+        intent.putExtra("msg", message);
+
+        return PendingIntent.getService(this, code, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     /* A IMPLEMENTER */
