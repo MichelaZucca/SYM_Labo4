@@ -37,9 +37,8 @@ public class NotificationActivity extends AppCompatActivity {
                     .setContentText("Cliquez ici !")
                     .build();
 
-                //notifyAllTypeNotification(notification);
-                NotificationManagerCompat notificationManager =
-                        NotificationManagerCompat.from(NotificationActivity.this);
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
                 // Issue the notification with notification manager.
                 notificationManager.notify(notificationId, notification);
@@ -67,14 +66,14 @@ public class NotificationActivity extends AppCompatActivity {
                         .setContentText("Subject")
                         .setSmallIcon(android.R.drawable.ic_dialog_info)
                         .setAutoCancel(true)
-                        .addAction(android.R.drawable.ic_menu_more, "Open", createPendingIntent(0, "Email opened"))
+                        .addAction(android.R.drawable.ic_menu_delete, "delete", createPendingIntent(0,"Email deleted"))
+                        .addAction(android.R.drawable.ic_menu_save, "Save", createPendingIntent(1, "Email saved"))
+                        .addAction(android.R.drawable.ic_menu_more, "Open", createPendingIntent(2, "Email opened"))
                         .setStyle(new Notification.BigTextStyle().bigText("You have received a mail from "+"test@gmail.com.\nPlease choose an action"))
                         .build();
 
-                //notifyAllTypeNotification(notification);
-                NotificationManagerCompat notificationManager =
-                        NotificationManagerCompat.from(NotificationActivity.this);
-
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 // Issue the notification with notification manager.
                 notificationManager.notify(notificationId, notification);
             }
@@ -98,9 +97,8 @@ public class NotificationActivity extends AppCompatActivity {
                 // Build
                 Notification notification = builder.build();
 
-                NotificationManagerCompat notificationManager =
-                        NotificationManagerCompat.from(NotificationActivity.this);
-
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 // Issue the notification with notification manager.
                 notificationManager.notify(notificationId, notification);
             }
