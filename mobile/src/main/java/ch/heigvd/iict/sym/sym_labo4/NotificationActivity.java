@@ -25,27 +25,32 @@ public class NotificationActivity extends AppCompatActivity {
         if(getIntent() != null)
             onNewIntent(getIntent());
 
-        /* A IMPLEMENTER */
         findViewById(R.id.pendingIntent).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(NotificationActivity.this);
-                builder.setContentIntent(createPendingIntent(1,"Notifications clicked"));
-                builder.setSmallIcon(android.R.drawable.ic_dialog_info);
-                builder.setContentTitle("Nouvelles notifications");
-                builder.setContentText("Cliquez ici !");
+                int notificationId = 001;
 
-                NotificationManager mNotificationManager =
-                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                mNotificationManager.notify(1, builder.build());
+                // Simple notification
+                Notification notification = new NotificationCompat.Builder(NotificationActivity.this)
+                    .setContentIntent(createPendingIntent(1,"Notifications clicked"))
+                    .setSmallIcon(android.R.drawable.ic_dialog_info)
+                    .setContentTitle("Nouvelles notifications")
+                    .setContentText("Cliquez ici !")
+                    .build();
+
+                //notifyAllTypeNotification(notification);
+                NotificationManagerCompat notificationManager =
+                        NotificationManagerCompat.from(NotificationActivity.this);
+
+                // Issue the notification with notification manager.
+                notificationManager.notify(notificationId, notification);
             }
         });
 
         findViewById(R.id.intentButtons).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-
+                int notificationId = 001;
                 // Intent principal pour afficher la notification
-                Intent intent = new Intent(NotificationActivity.this, NotificationActivity.class);
-                PendingIntent pIntent = PendingIntent.getActivity(NotificationActivity.this, (int) System.currentTimeMillis(), intent, 0);
+                 PendingIntent pi = createPendingIntent(0, "New email");
 
                 // Build et ajouter les boutons de choix
                 // Pour une raison inconnu avec un samsung S5 mini, windows 10 et android
@@ -57,68 +62,50 @@ public class NotificationActivity extends AppCompatActivity {
                 // " Let me tell you something which is really awkward. If you have anything in your
                 // Ongoing Notification, You wont see the buttons. Typically it happens when you
                 // have phone connected to PC via USB. Hope this solves your problem"
-                Notification n  = new Notification.Builder(NotificationActivity.this)
+                Notification notification  = new Notification.Builder(NotificationActivity.this)
                         .setContentTitle("New mail from " + "test@gmail.com")
                         .setContentText("Subject")
-                        .setPriority(Notification.PRIORITY_MAX)
-                        .setWhen(0)
                         .setSmallIcon(android.R.drawable.ic_dialog_info)
-                        .setContentIntent(pIntent)
                         .setAutoCancel(true)
-                        .addAction(android.R.drawable.ic_menu_delete, "delete", createPendingIntent(0,"Email deleted"))
-                        .addAction(android.R.drawable.ic_menu_save, "Save", createPendingIntent(0, "Email saved"))
                         .addAction(android.R.drawable.ic_menu_more, "Open", createPendingIntent(0, "Email opened"))
                         .setStyle(new Notification.BigTextStyle().bigText("You have received a mail from "+"test@gmail.com.\nPlease choose an action"))
                         .build();
 
-                NotificationManager notificationManager =
-                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                //notifyAllTypeNotification(notification);
+                NotificationManagerCompat notificationManager =
+                        NotificationManagerCompat.from(NotificationActivity.this);
 
-                notificationManager.notify(0, n);
+                // Issue the notification with notification manager.
+                notificationManager.notify(notificationId, notification);
             }
         });
 
         findViewById(R.id.intentWearable).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 int notificationId = 001;
-                // The channel ID of the notification.
-                String id = "my_channel_01";
-                // Build intent for notification content
-              PendingIntent pi = createPendingIntent(1, "Notification only wearable");
+                // Action only on wearable
+                NotificationCompat.WearableExtender we = new NotificationCompat.WearableExtender()
+                        .addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_save, "Save", createPendingIntent(0, "Email saved")));
 
-            // Notification channel ID is ignored for Android 7.1.1
-            // (API level 25) and lower.
-                NotificationCompat.Builder notificationBuilder =
-                        new NotificationCompat.Builder(NotificationActivity.this, id)
-                                .setSmallIcon(android.R.drawable.ic_dialog_info)
-                                .setContentTitle("Only wearable")
-                                .setContentText("Hello")
-                                .setContentIntent(pi);
+                // Action on phone and wearable
+                NotificationCompat.Builder builder  = new NotificationCompat.Builder(NotificationActivity.this)
+                        .setContentTitle("New mail from " + "test@gmail.com")
+                        .setContentText("Subject")
+                        .setSmallIcon(android.R.drawable.ic_dialog_info)
+                        .setAutoCancel(true)
+                        .extend(we);
 
-                // Get an instance of the NotificationManager service
+                // Build
+                Notification notification = builder.build();
+
                 NotificationManagerCompat notificationManager =
                         NotificationManagerCompat.from(NotificationActivity.this);
 
-            // Issue the notification with notification manager.
-                notificationManager.notify(notificationId, notificationBuilder.build());
+                // Issue the notification with notification manager.
+                notificationManager.notify(notificationId, notification);
             }
         });
-
-
     }
-
-    private PendingIntent createPendingIntentNotBuild(int code, String message){
-        Intent intent = new Intent(this, NotificationActivity.class);
-        intent.setAction(Constants.MY_PENDING_INTENT_ACTION);
-        intent.putExtra("msg", message);
-
-        return PendingIntent.getService(this, code, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-
-    /*
-     *  Code fourni pour les PendingIntent
-     */
 
     /*
      *  Method called by system when a new Intent is received
