@@ -1,11 +1,26 @@
 package ch.heigvd.iict.sym.sym_labo4;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-public class WearSynchronizedActivity extends AppCompatActivity {
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.MessageClient;
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.Wearable;
+
+import java.nio.ByteBuffer;
+
+import static ch.heigvd.iict.sym.wearcommon.Constants.BACKGROUND_COLORS;
+import static ch.heigvd.iict.sym.wearcommon.Constants.MY_PENDING_INTENT_ACTION;
+
+public class WearSynchronizedActivity extends AppCompatActivity implements MessageClient.OnMessageReceivedListener  {
 
     private static final String TAG = WearSynchronizedActivity.class.getSimpleName();
 
@@ -14,11 +29,24 @@ public class WearSynchronizedActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wearsynchronized);
 
-        /* A IMPLEMENTER */
-
+        Wearable.getMessageClient(this).addListener(this);
     }
 
-    /* A IMPLEMENTER */
+    @Override
+    public void onMessageReceived(MessageEvent messageEvent) {
+        System.out.println("Received colors...");
+
+        if (messageEvent.getPath().equals(BACKGROUND_COLORS)) {
+            byte[] colors = messageEvent.getData();
+            ByteBuffer colorsBuffer = ByteBuffer.wrap(colors);
+
+            int r = colorsBuffer.getInt();
+            int g = colorsBuffer.getInt();
+            int b = colorsBuffer.getInt();
+
+            updateColor(r, g, b);
+        }
+    }
 
     /*
      *  Code utilitaire fourni

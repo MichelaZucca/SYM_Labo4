@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="android_wear_capabilities">
+        <item>ch.heigvd.iict.sym.sym_labo4/COLORS</item>
+    </string-array>
+</resources>
