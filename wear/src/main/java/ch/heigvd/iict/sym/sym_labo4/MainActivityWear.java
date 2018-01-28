@@ -16,6 +16,8 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
 import java.nio.ByteBuffer;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -40,8 +42,6 @@ public class MainActivityWear extends WearableActivity {
     private double endAngleRed      = 90+30;
     private double endAngleGreen    = 90+60;
     private double endAngleBlue     = 90+90;
-
-    private String backgroundColorNodeId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,83 +103,41 @@ public class MainActivityWear extends WearableActivity {
 
         updateColor();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    setupBackgroundColor();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
-
     }
-
-    private void setupBackgroundColor() throws ExecutionException, InterruptedException {
-        CapabilityInfo capabilityInfo = Tasks.await(
-                Wearable.getCapabilityClient(this).getCapability(
-                        BACKGROUND_COLORS, CapabilityClient.FILTER_REACHABLE));
-        // capabilityInfo has the reachable nodes with the transcription capability
-        updateTranscriptionCapability(capabilityInfo);
-
-        // Declare an OnCapabilityChangedListener
-        CapabilityClient.OnCapabilityChangedListener capabilityListener =
-                new CapabilityClient.OnCapabilityChangedListener() {
-            @Override
-            public void onCapabilityChanged(@NonNull CapabilityInfo capabilityInfo) {
-                System.out.println("Something changed.");
-                updateTranscriptionCapability(capabilityInfo);
-            }
-        };
-
-        // Register
-        Wearable.getCapabilityClient(this).addListener(
-                capabilityListener,
-                BACKGROUND_COLORS);
-    }
-
-    private void updateTranscriptionCapability(CapabilityInfo capabilityInfo) {
-        Set<Node> connectedNodes = capabilityInfo.getNodes();
-
-        backgroundColorNodeId = pickBestNodeId(connectedNodes);
-
-    }
-
-    private String pickBestNodeId(Set<Node> nodes) {
-        String bestNodeId = null;
-        // Find a nearby node or pick one arbitrarily
-        for (Node node : nodes) {
-            if (node.isNearby()) {
-                return node.getId();
-            }
-            bestNodeId = node.getId();
-        }
-        return bestNodeId;
-    }
-
     /**
      * Request the background change on the smartphone.
      * @param colors RGB in an array of 12 bytes, (4 bytes for each of rgb colors)
      */
     private void requestBackgroundColor(byte[] colors) {
 
-        System.out.println("Sending the colors to the user.");
-        if (backgroundColorNodeId != null) {
-            Task<Integer> sendTask =
-                    Wearable.getMessageClient(this).sendMessage(
-                            backgroundColorNodeId, BACKGROUND_COLORS, colors);
+        HashSet<String> results = new HashSet<String>();
+        try {
+            List<Node> nodes =
+                    Tasks.await(Wearable.getNodeClient(this).getConnectedNodes());
 
-            // You can add success and/or failure listeners,
-            // Or you can call Tasks.await() and catch ExecutionException
-            //sendTask.addOnSuccessListener(...);
-            //sendTask.addOnFailureListener(...);
-        } else {
-            // Unable to retrieve node with transcription capability
+            for (Node n : nodes) {
+                System.out.println("Sending the colors to the user.");
+                if (n != null) {
+                    Task<Integer> sendTask =
+                            Wearable.getMessageClient(this).sendMessage(
+                                    n.getId(), BACKGROUND_COLORS, colors);
+
+                    // You can add success and/or failure listeners,
+                    // Or you can call Tasks.await() and catch ExecutionException
+                    //sendTask.addOnSuccessListener(...);
+                    //sendTask.addOnFailureListener(...);
+                } else {
+                    System.out.println("Aucun device disponible");
+                }
+            }
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
+
+
     }
 
     @Override
@@ -218,12 +176,18 @@ public class MainActivityWear extends WearableActivity {
         int g = (int) Math.round(255 * ((endAngleGreen - startAngleGreen) % 360) / 360.0);
         int b = (int) Math.round(255 * ((endAngleBlue  - startAngleBlue)  % 360) / 360.0);
 
-        ByteBuffer colorsBuffer = ByteBuffer.allocate(12);
+        final ByteBuffer colorsBuffer = ByteBuffer.allocate(12);
         colorsBuffer.putInt(r);
         colorsBuffer.putInt(g);
         colorsBuffer.putInt(b);
 
-        requestBackgroundColor(colorsBuffer.array());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                requestBackgroundColor(colorsBuffer.array());
+            }
+        }).start();
     }
 
 }

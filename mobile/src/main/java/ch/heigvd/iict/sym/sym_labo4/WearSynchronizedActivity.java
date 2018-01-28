@@ -9,7 +9,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.wearable.CapabilityClient;
+import com.google.android.gms.wearable.CapabilityInfo;
 import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.MessageEvent;
@@ -20,7 +23,10 @@ import java.nio.ByteBuffer;
 import static ch.heigvd.iict.sym.wearcommon.Constants.BACKGROUND_COLORS;
 import static ch.heigvd.iict.sym.wearcommon.Constants.MY_PENDING_INTENT_ACTION;
 
-public class WearSynchronizedActivity extends AppCompatActivity implements MessageClient.OnMessageReceivedListener  {
+public class WearSynchronizedActivity extends AppCompatActivity implements
+        DataClient.OnDataChangedListener,
+        MessageClient.OnMessageReceivedListener,
+        CapabilityClient.OnCapabilityChangedListener  {
 
     private static final String TAG = WearSynchronizedActivity.class.getSimpleName();
 
@@ -30,6 +36,26 @@ public class WearSynchronizedActivity extends AppCompatActivity implements Messa
         setContentView(R.layout.activity_wearsynchronized);
 
         Wearable.getMessageClient(this).addListener(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Wearable.getDataClient(this).addListener(this);
+        Wearable.getMessageClient(this).addListener(this);
+        Wearable.getCapabilityClient(this)
+                .addListener(
+                        this, BACKGROUND_COLORS);
+
+        System.out.println("klamdkamsdlkalsmdlkasm");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Wearable.getDataClient(this).removeListener(this);
+        Wearable.getMessageClient(this).removeListener(this);
+        Wearable.getCapabilityClient(this).removeListener(this);
     }
 
     @Override
@@ -63,4 +89,13 @@ public class WearSynchronizedActivity extends AppCompatActivity implements Messa
         rootView.setBackgroundColor(Color.argb(255, r,g,b));
     }
 
+    @Override
+    public void onCapabilityChanged(@NonNull CapabilityInfo capabilityInfo) {
+        System.out.println("LOLOL");
+    }
+
+    @Override
+    public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
+        System.out.println("LOLOLOL");
+    }
 }
